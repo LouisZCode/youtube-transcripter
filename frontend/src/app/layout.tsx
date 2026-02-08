@@ -1,0 +1,37 @@
+import type { Metadata } from "next";
+import { Roboto, Roboto_Mono } from "next/font/google";
+import { ThemeProvider } from "next-themes";
+import "./globals.css";
+
+const roboto = Roboto({
+  variable: "--font-roboto",
+  subsets: ["latin"],
+  weight: ["400", "700"],
+});
+
+const robotoMono = Roboto_Mono({
+  variable: "--font-roboto-mono",
+  subsets: ["latin"],
+  weight: ["400"],
+});
+
+export const metadata: Metadata = {
+  title: "TubeText — YouTube Video to Text",
+  description: "Convert any YouTube video to a formatted transcript with timestamps.",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${roboto.variable} ${robotoMono.variable} antialiased`}>
+        <ThemeProvider attribute="class" defaultTheme="light">
+          {children}
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+}

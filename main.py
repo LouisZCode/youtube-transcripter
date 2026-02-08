@@ -1,4 +1,8 @@
+#  uvicorn main:app --reload
+# cd frontend   npm run dev
+
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from fpdf import FPDF
 import os
@@ -13,8 +17,14 @@ import yt_dlp
 load_dotenv()
 
 app = FastAPI()
-                                                                                                                
-                                                                                                                            
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 def _extract_video_id(url: str) -> str | None:
     patterns = [
         r'(?:v=|\/)([\w-]{11})(?:\?|&|$)',  # watch?v= or /VIDEO_ID

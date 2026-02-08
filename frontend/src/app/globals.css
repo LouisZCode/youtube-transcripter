@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
+  --color-card: var(--card);
+  --color-text-secondary: var(--text-secondary);
+  --color-border: var(--border);
+  --color-yt-red: #ff0000;
+  --font-sans: var(--font-roboto);
+  --font-mono: var(--font-roboto-mono);
+}
+
+:root {
+  --bg: #f9f9f9;
+  --card: #ffffff;
+  --text: #0f0f0f;
+  --text-secondary: #606060;
+  --border: #e5e5e5;
+}
+
+.dark {
+  --bg: #0f0f0f;
+  --card: #272727;
+  --text: #ffffff;
+  --text-secondary: #aaaaaa;
+  --border: #3f3f3f;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-roboto), Arial, Helvetica, sans-serif;
+}
+
+/* Indeterminate loading bar animation */
+@keyframes indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+.animate-indeterminate {
+  animation: indeterminate 1.4s ease-in-out infinite;
+}
+
+/* Slide-up animation for OutputCard */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.4s ease-out;
+}
