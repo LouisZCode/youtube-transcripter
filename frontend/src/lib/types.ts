@@ -18,3 +18,7 @@ export interface TranscriptError {
 }
 
 export type TranscriptResponse = TranscriptResult | TranscriptError;
+
+export interface SummaryResponse {
+  summary: string;
+}

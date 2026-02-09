@@ -14,6 +14,10 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from deepgram import DeepgramClient
 import yt_dlp
 
+from pydantic import BaseModel
+
+from agents import summary_agent
+
 load_dotenv()
 
 app = FastAPI()
@@ -199,9 +203,8 @@ async def get_video_transcript(video_url: str, language: str):
 
 
 @app.post("/video/pdf/")
-async def get_video_pdf(video_url: str, language: str):
-    result = _get_transcript(video_url, language)
-    pdf_bytes = _build_pdf(result["segments"])
+async def get_video_pdf(transcription: str):
+    pass
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
@@ -209,3 +212,12 @@ async def get_video_pdf(video_url: str, language: str):
             "Content-Disposition": f'attachment; filename="{result["video_id"]}.pdf"'
         },
     )
+
+class SummaryRequest(BaseModel):
+    transcription: str
+
+@app.post("/video/summary")
+async def create_video_summary(request : SummaryRequest):
+    summary = await summary_agent.ainvoke({"messages" : [{"role" : "user" , "content" : request.transcription}]})
+    result = summary["messages"][-1].content
+    return {"summary" : result}

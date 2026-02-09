@@ -1,11 +1,9 @@
 from dotenv import load_dotenv
-
-from langchain_core.prompts import prompt
 import yaml
 
-load_dotenv()
-
 from langchain.agents import create_agent
+
+load_dotenv()
 
 def load_prompts():
     """Load all prompts from prompts.yaml file"""
@@ -17,7 +15,7 @@ prompts = load_prompts()
 summary_prompt = prompts["SUMMARIZE_PROMPT"]
 
 summary_agent = create_agent(
-    model="openai:gpt-5-nano-2025-08-07",
+    model="openai:gpt-5-mini",
     system_prompt=summary_prompt
 )
 

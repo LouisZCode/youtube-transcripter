@@ -1,4 +1,4 @@
-import { TranscriptResponse } from "./types";
+import { TranscriptResponse, SummaryResponse } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -13,6 +13,16 @@ export async function fetchTranscript(
     throw new Error(`Server error: ${res.status}`);
   }
 
+  return res.json();
+}
+
+export async function fetchSummary(transcription: string): Promise<SummaryResponse> {
+  const res = await fetch(`${API_URL}/video/summary`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ transcription }),
+  });
+  if (!res.ok) throw new Error(`Summary failed: ${res.status}`);
   return res.json();
 }
 
