@@ -102,7 +102,7 @@ export default function OutputCard({ result, url, loading }: OutputCardProps) {
   }
 
   async function handleDownload() {
-    await downloadPdf(url);
+    await downloadPdf(result.segments);
   }
 
   async function handleSummarize() {

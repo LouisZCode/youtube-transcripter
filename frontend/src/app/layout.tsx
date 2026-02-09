@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Roboto, Roboto_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import Script from "next/script";
 import "./globals.css";
 
 const roboto = Roboto({
@@ -28,6 +29,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${roboto.variable} ${robotoMono.variable} antialiased`}>
+        <Script
+          type="module"
+          src="https://cdn.spline.design/@splinetool/hana-viewer@1.2.44/hana-viewer.js"
+          strategy="afterInteractive"
+        />
         <ThemeProvider attribute="class" defaultTheme="light">
           {children}
         </ThemeProvider>

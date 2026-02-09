@@ -202,14 +202,17 @@ async def get_video_transcript(video_url: str, language: str):
         return {"success": False, "error": str(e)}
 
 
+class PdfRequest(BaseModel):
+    segments: list[dict]
+
 @app.post("/video/pdf/")
-async def get_video_pdf(transcription: str):
-    pass
+async def get_video_pdf(request: PdfRequest):
+    pdf_bytes = _build_pdf(request.segments)
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
         headers={
-            "Content-Disposition": f'attachment; filename="{result["video_id"]}.pdf"'
+            "Content-Disposition": 'attachment; filename="transcript.pdf"'
         },
     )
 

@@ -27,11 +27,13 @@ export async function fetchSummary(transcription: string): Promise<SummaryRespon
 }
 
 export async function downloadPdf(
-  videoUrl: string,
-  language: string = "en"
+  segments: { timestamp: string; text: string }[]
 ): Promise<void> {
-  const params = new URLSearchParams({ video_url: videoUrl, language });
-  const res = await fetch(`${API_URL}/video/pdf/?${params}`, { method: "POST" });
+  const res = await fetch(`${API_URL}/video/pdf/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ segments }),
+  });
 
   if (!res.ok) {
     throw new Error(`PDF download failed: ${res.status}`);
