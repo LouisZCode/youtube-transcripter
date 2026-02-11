@@ -6,19 +6,30 @@ interface HeroProps {
   url: string;
   loading: boolean;
   mode: Mode;
+  language: string;
   onUrlChange: (url: string) => void;
   onModeChange: (mode: Mode) => void;
+  onLanguageChange: (language: string) => void;
   onSubmit: () => void;
 }
 
+const languages = ["Spanish", "Portuguese", "German", "French"];
+
 const modes: { value: Mode; label: string }[] = [
-  { value: "transcription", label: "Transcription" },
-  { value: "pro", label: "Pro Transcription" },
+  { value: "transcription", label: "Freemium" },
+  { value: "pro", label: "Premium" },
   { value: "summary", label: "Summary" },
+  { value: "translate", label: "Translate" },
 ];
 
-export default function Hero({ url, loading, mode, onUrlChange, onModeChange, onSubmit }: HeroProps) {
-  const buttonLabel = mode === "summary" ? "GET SUMMARY" : "GET TRANSCRIPTION";
+export default function Hero({ url, loading, mode, language, onUrlChange, onModeChange, onLanguageChange, onSubmit }: HeroProps) {
+  const buttonLabels: Record<Mode, string> = {
+    transcription: "GET TRANSCRIPTION",
+    pro: "GET TRANSCRIPTION",
+    summary: "GET SUMMARY",
+    translate: "GET TRANSLATION",
+  };
+  const buttonLabel = buttonLabels[mode];
 
   return (
     <section className="flex flex-col items-center gap-4 text-center">
@@ -75,6 +86,21 @@ export default function Hero({ url, loading, mode, onUrlChange, onModeChange, on
             </button>
           ))}
         </div>
+
+        {/* Language selector — translate mode only */}
+        {mode === "translate" && (
+          <select
+            value={language}
+            onChange={(e) => onLanguageChange(e.target.value)}
+            className="h-12 w-full rounded-full border border-border bg-card px-5 text-sm outline-none transition-colors focus:border-yt-red"
+          >
+            {languages.map((lang) => (
+              <option key={lang} value={lang}>
+                {lang}
+              </option>
+            ))}
+          </select>
+        )}
 
         {/* Action button */}
         <button

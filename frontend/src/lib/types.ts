@@ -23,4 +23,8 @@ export interface SummaryResponse {
   summary: string;
 }
 
-export type Mode = "transcription" | "pro" | "summary";
+export interface TranslateResponse {
+  translation: string;
+}
+
+export type Mode = "transcription" | "pro" | "summary" | "translate";

@@ -10,19 +10,23 @@ interface OutputCardProps {
   mode: Mode;
   loading: boolean;
   summary?: string | null;
+  translation?: string | null;
 }
 
-export default function OutputCard({ result, mode, loading, summary }: OutputCardProps) {
+export default function OutputCard({ result, mode, loading, summary, translation }: OutputCardProps) {
   const [copied, setCopied] = useState(false);
 
   const isSummaryMode = mode === "summary";
+  const isTranslateMode = mode === "translate";
+  const isLlmMode = isSummaryMode || isTranslateMode;
   const showPdf = mode === "pro";
 
   const fullText = result.segments
     .map((s) => `${s.timestamp} ${s.text}`)
     .join("\n\n");
 
-  const displayText = isSummaryMode ? (summary ?? "") : fullText;
+  const llmText = isSummaryMode ? (summary ?? "") : isTranslateMode ? (translation ?? "") : "";
+  const displayText = isLlmMode ? llmText : fullText;
 
   async function handleCopy() {
     await navigator.clipboard.writeText(displayText);
@@ -46,7 +50,7 @@ export default function OutputCard({ result, mode, loading, summary }: OutputCar
       {/* Header + Actions */}
       <div className="flex items-center justify-between border-b border-border px-5 py-3">
         <span className="text-sm font-bold">
-          {isSummaryMode ? "Summary" : "Transcript"}
+          {isSummaryMode ? "Summary" : isTranslateMode ? "Translation" : "Transcript"}
         </span>
 
         <div className="flex items-center gap-2">
@@ -54,7 +58,7 @@ export default function OutputCard({ result, mode, loading, summary }: OutputCar
             <button
               onClick={handleCopy}
               className="flex h-8 w-8 items-center justify-center rounded-md transition-colors hover:bg-border/50"
-              aria-label={isSummaryMode ? "Copy summary" : "Copy transcript"}
+              aria-label={isSummaryMode ? "Copy summary" : isTranslateMode ? "Copy translation" : "Copy transcript"}
             >
               {copied ? (
                 <CheckIcon className="h-4 w-4 text-green-500" />
@@ -81,7 +85,7 @@ export default function OutputCard({ result, mode, loading, summary }: OutputCar
       </div>
 
       {/* Meta info — transcript modes only */}
-      {!isSummaryMode && (
+      {!isLlmMode && (
         <div className="flex gap-4 border-b border-border px-5 py-2 text-xs text-text-secondary">
           <span>{result.word_count.toLocaleString()} words</span>
           <span>Source: {result.source === "captions" ? "Captions" : "Audio transcription"}</span>
@@ -90,9 +94,9 @@ export default function OutputCard({ result, mode, loading, summary }: OutputCar
 
       {/* Content */}
       <div className="max-h-[480px] overflow-y-auto px-5 py-4">
-        {isSummaryMode ? (
+        {isLlmMode ? (
           <div className="whitespace-pre-wrap text-sm leading-relaxed">
-            {summary}
+            {llmText}
           </div>
         ) : (
           <div className="space-y-4 font-mono text-sm leading-relaxed">

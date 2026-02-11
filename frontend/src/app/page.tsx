@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { TranscriptResult, Mode } from "@/lib/types";
-import { fetchTranscript, fetchTranscriptPremium, fetchSummary } from "@/lib/api";
+import { fetchTranscript, fetchTranscriptPremium, fetchSummary, fetchTranslation } from "@/lib/api";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import OutputCard from "@/components/OutputCard";
@@ -15,6 +15,8 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<TranscriptResult | null>(null);
   const [summary, setSummary] = useState<string | null>(null);
+  const [translation, setTranslation] = useState<string | null>(null);
+  const [language, setLanguage] = useState("Spanish");
 
   async function handleSubmit() {
     if (!url.trim()) return;
@@ -23,6 +25,7 @@ export default function Home() {
     setError(null);
     setResult(null);
     setSummary(null);
+    setTranslation(null);
 
     try {
       const fetcher = mode === "pro" ? fetchTranscriptPremium : fetchTranscript;
@@ -41,6 +44,13 @@ export default function Home() {
         const summaryData = await fetchSummary(transcription);
         setSummary(summaryData.summary);
       }
+
+      // Translate mode: chain a translation call after getting the transcript
+      if (mode === "translate") {
+        const transcription = data.segments.map((s) => s.text).join(" ");
+        const translateData = await fetchTranslation(transcription, language);
+        setTranslation(translateData.translation);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -57,8 +67,10 @@ export default function Home() {
           url={url}
           loading={loading}
           mode={mode}
+          language={language}
           onUrlChange={setUrl}
           onModeChange={setMode}
+          onLanguageChange={setLanguage}
           onSubmit={handleSubmit}
         />
 
@@ -74,6 +86,7 @@ export default function Home() {
             mode={mode}
             loading={loading}
             summary={summary}
+            translation={translation}
           />
         )}
       </main>
