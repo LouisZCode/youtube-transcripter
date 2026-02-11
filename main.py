@@ -5,7 +5,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from routes import all_routes
-from routes.video_transcript import router
 
 app = FastAPI()
 app.add_middleware(
