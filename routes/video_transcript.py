@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Response, HTTPException
+from fastapi import APIRouter, Request, Response, HTTPException, Depends
 from youtube_transcript_api import YouTubeTranscriptApi
 
 from .utils import extract_video_id, merge_segments
@@ -7,6 +7,8 @@ from itsdangerous import URLSafeSerializer, BadSignature
 
 import os
 from dotenv import load_dotenv
+
+from dependencies.auth import get_current_user
 
 load_dotenv()
 
@@ -17,22 +19,33 @@ router = APIRouter()
 serializer = URLSafeSerializer(COOKIE_SECRET_KEY)
 
 @router.post("/video/")
-async def get_video_transcript(request: Request, response : Response, video_url: str, language: str = "en"):
+async def get_video_transcript(request: Request, response : Response, video_url: str, language: str = "en", user = Depends(get_current_user)):
 
-    raw_cookie = request.cookies.get("tubetext_session")
+    if not user:
 
-    if not raw_cookie: 
-        count = 1
-    
-    else:
-        try:
-            data = serializer.loads(raw_cookie)  # verify + decode
-            count = data["count"] + 1
-        except BadSignature:
-            raise HTTPException(status_code=403, detail="Invalid session")
+        raw_cookie = request.cookies.get("tubetext_session")
 
-    if count > 5:
-        raise HTTPException(status_code=429, detail="You ran out of free transcriptions, please signup to get 20 more free ones")
+        if not raw_cookie: 
+            count = 1
+        
+        else:
+            try:
+                data = serializer.loads(raw_cookie)  # verify + decode
+                count = data["count"] + 1
+            except BadSignature:
+                raise HTTPException(status_code=403, detail="Invalid session")
+
+        if count > 5:
+            raise HTTPException(status_code=429, detail="You ran out of free transcriptions, please signup to get 20 more free ones")
+        
+        signed_value = serializer.dumps({"count": count})
+        response.set_cookie(
+            key="tubetext_session",
+            value=signed_value,
+            httponly=True,
+            max_age=60 * 60 * 24 * 30,
+            samesite="lax"
+        )
 
 
     try:
@@ -49,15 +62,6 @@ async def get_video_transcript(request: Request, response : Response, video_url:
         snippets = transcript.snippets
         segments = merge_segments(snippets)
 
-
-        signed_value = serializer.dumps({"count": count})
-        response.set_cookie(
-            key="tubetext_session",
-            value=signed_value,
-            httponly=True,
-            max_age=60 * 60 * 24 * 30,
-            samesite="lax"
-        )
 
         return {
             "success": True,
