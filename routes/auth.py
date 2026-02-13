@@ -38,7 +38,7 @@ JWT_EXPIRATION_DAYS = 30
 @router.get("/google/login")
 async def login(request: Request):
     redirect_uri = request.url_for("auth_callback")
-    return await oauth.google.authorize_redirect(request, redirect_uri)
+    return await oauth.google.authorize_redirect(request, redirect_uri, prompt="select_account")
 
 
 # Google redirects the user here after they log in.

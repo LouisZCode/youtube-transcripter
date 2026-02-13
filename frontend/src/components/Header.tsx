@@ -20,6 +20,15 @@ export default function Header() {
             user ? (
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">{user.name.split(" ")[0]}</span>
+                <span
+                  className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                    user.tier === "premium"
+                      ? "bg-amber-400/15 text-amber-500"
+                      : "bg-slate-400/15 text-slate-400"
+                  }`}
+                >
+                  {user.tier === "premium" ? "Premium" : "Free"}
+                </span>
                 <button
                   onClick={logout}
                   className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
