@@ -24,4 +24,5 @@ async def get_video_languages(video_url: str):
             "default": languages[0]["code"] if languages else None,
         }
     except Exception as e:
+        print(f"[language_detect] FAILED for video_url={video_url}: {type(e).__name__}: {e}")
         return {"success": False, "languages": [], "default": None, "error": str(e)}
