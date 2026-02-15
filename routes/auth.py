@@ -146,6 +146,7 @@ async def join_waitlist(body: WaitlistRequest, user=Depends(get_current_user), d
     user.bonus_uses = 20
     db.add(user)
     await db.commit()
+    await db.refresh(user)
 
     resend.Emails.send({
         "from": "TubeText <contact@send.tubetext.app>",
