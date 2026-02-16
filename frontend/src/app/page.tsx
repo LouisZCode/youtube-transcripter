@@ -196,7 +196,7 @@ export default function Home() {
                 language={language}
                 languages={languages}
                 onLanguageChange={setLanguage}
-                onDownloadPdf={() => result && downloadPdf(result.segments)}
+                onDownloadPdf={() => result && downloadPdf(result.segments, result.video_id)}
                 onSummary={handleSummary}
                 onTranslate={handleTranslate}
                 loading={loading}

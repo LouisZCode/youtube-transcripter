@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { TranscriptResult, Mode } from "@/lib/types";
 import { downloadPdf } from "@/lib/api";
 import { ClipboardIcon, DownloadIcon, CheckIcon } from "./icons";
@@ -81,8 +82,14 @@ export default function OutputCard({ result, mode, loading, summary, translation
     setTimeout(() => setCopied(false), 2000);
   }
 
+  const virtualizer = useVirtualizer({
+    count: result.segments.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => 60,
+  });
+
   async function handleDownload() {
-    await downloadPdf(result.segments);
+    await downloadPdf(result.segments, result.video_id);
   }
 
   return (
@@ -157,13 +164,31 @@ export default function OutputCard({ result, mode, loading, summary, translation
             )}
           </div>
         ) : (
-          <div className="space-y-4 font-mono text-base leading-relaxed">
-            {result.segments.map((seg, i) => (
-              <p key={i}>
-                <span className="font-bold text-yt-red">{seg.timestamp}</span>{" "}
-                {seg.text}
-              </p>
-            ))}
+          <div
+            className="font-mono text-base leading-relaxed"
+            style={{ height: virtualizer.getTotalSize(), position: "relative" }}
+          >
+            {virtualizer.getVirtualItems().map((virtualItem) => {
+              const seg = result.segments[virtualItem.index];
+              return (
+                <p
+                  key={virtualItem.index}
+                  ref={virtualizer.measureElement}
+                  data-index={virtualItem.index}
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    transform: `translateY(${virtualItem.start}px)`,
+                  }}
+                  className="pb-4"
+                >
+                  <span className="font-bold text-yt-red">{seg.timestamp}</span>{" "}
+                  {seg.text}
+                </p>
+              );
+            })}
           </div>
         )}
       </div>

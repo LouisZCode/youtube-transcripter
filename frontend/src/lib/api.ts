@@ -139,12 +139,13 @@ export async function fetchTranslationStream(
 }
 
 export async function downloadPdf(
-  segments: { timestamp: string; text: string }[]
+  segments: { timestamp: string; text: string }[],
+  videoId?: string
 ): Promise<void> {
   const res = await fetch(`${API_URL}/video/pdf/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ segments }),
+    body: JSON.stringify({ segments, video_id: videoId }),
     credentials: "include",
   });
 
@@ -152,11 +153,15 @@ export async function downloadPdf(
     throw new Error(`PDF download failed: ${res.status}`);
   }
 
+  const disposition = res.headers.get("Content-Disposition") || "";
+  const match = disposition.match(/filename="?([^"]+)"?/);
+  const filename = match?.[1] || "transcript.pdf";
+
   const blob = await res.blob();
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "transcript.pdf";
+  a.download = filename;
   document.body.appendChild(a);
   a.click();
   a.remove();

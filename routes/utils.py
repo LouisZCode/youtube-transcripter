@@ -13,9 +13,13 @@ def extract_video_id(url: str) -> str | None:
 
 
 def format_timestamp(seconds: float) -> str:
-    """Convert seconds to (MM:SS) format."""
-    mins = int(seconds // 60)
-    secs = int(seconds % 60)
+    """Convert seconds to (MM:SS) or (H:MM:SS) format."""
+    total_secs = int(seconds)
+    hrs = total_secs // 3600
+    mins = (total_secs % 3600) // 60
+    secs = total_secs % 60
+    if hrs > 0:
+        return f"({hrs}:{mins:02d}:{secs:02d})"
     return f"({mins:02d}:{secs:02d})"
 
 
