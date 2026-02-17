@@ -30,6 +30,7 @@ export interface TranslateResponse {
 export interface TranslateChunkEvent {
   translation?: string;
   done?: boolean;
+  error?: string;
 }
 
 export type Mode = "transcription" | "pro" | "summary" | "translate";

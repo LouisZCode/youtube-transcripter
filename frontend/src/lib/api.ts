@@ -81,6 +81,7 @@ export async function fetchSummary(transcription: string): Promise<SummaryRespon
   if (!res.ok) {
     if (res.status === 401) throw new Error("__AUTH__Sign in required");
     if (res.status === 403) throw new Error("__PREMIUM__Premium subscription required");
+    if (res.status === 502) throw new Error("Summary service temporarily unavailable");
     throw new Error(`Summary failed: ${res.status}`);
   }
   return res.json();
@@ -117,6 +118,7 @@ export async function fetchTranslationStream(
       const line = part.trim();
       if (!line.startsWith("data: ")) continue;
       const event: TranslateChunkEvent = JSON.parse(line.slice(6));
+      if (event.error) throw new Error(event.error);
       if (event.done) return;
       if (event.translation) onChunk(event.translation);
     }

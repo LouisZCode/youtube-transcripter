@@ -1,10 +1,13 @@
 import json
+import logging
 from typing import List
 from pydantic import BaseModel
 from fastapi import APIRouter, Depends
 from dependencies.auth import require_premium
 from fastapi.responses import StreamingResponse
 from agents.translate_agent import translate
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 CHUNK_SIZE = 1
@@ -21,10 +24,15 @@ class TranslateStreamRequest(BaseModel):
 async def stream_video_translation(request: TranslateStreamRequest, user=Depends(require_premium)):
     async def event_generator():
         for i in range(0, len(request.segments), CHUNK_SIZE):
-            chunk_segments = request.segments[i : i + CHUNK_SIZE]
-            chunk_text = " ".join(seg.text for seg in chunk_segments)
-            translated = await translate(chunk_text, request.language)
-            yield f"data: {json.dumps({'translation': translated})}\n\n"
+            try:
+                chunk_segments = request.segments[i : i + CHUNK_SIZE]
+                chunk_text = " ".join(seg.text for seg in chunk_segments)
+                translated = await translate(chunk_text, request.language)
+                yield f"data: {json.dumps({'translation': translated})}\n\n"
+            except Exception:
+                logger.exception("Translation chunk failed")
+                yield f"data: {json.dumps({'error': 'Translation service temporarily unavailable'})}\n\n"
+                return
         yield f"data: {json.dumps({'done': True})}\n\n"
 
     return StreamingResponse(
