@@ -43,6 +43,31 @@ interface OutputCardProps {
   elapsedSeconds?: number | null;
 }
 
+function FormattedSummary({ text }: { text: string }) {
+  const lines = text.split("\n");
+  return (
+    <div className="space-y-2 text-base leading-relaxed">
+      {lines.map((line, i) => {
+        const trimmed = line.trim();
+        if (!trimmed) return null;
+        if (trimmed.startsWith("- ")) {
+          return (
+            <div key={i} className="flex gap-2 pl-1">
+              <span className="mt-[10px] h-1.5 w-1.5 shrink-0 rounded-full bg-yt-red" />
+              <span>{trimmed.slice(2)}</span>
+            </div>
+          );
+        }
+        return (
+          <p key={i} className="font-bold text-text-secondary">
+            {trimmed}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function OutputCard({ result, mode, loading, summary, translation, elapsedSeconds }: OutputCardProps) {
   const [copied, setCopied] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -157,12 +182,16 @@ export default function OutputCard({ result, mode, loading, summary, translation
         className="max-h-[480px] overflow-y-auto px-5 py-4"
       >
         {isLlmMode ? (
-          <div className="whitespace-pre-wrap text-base leading-relaxed">
-            {visibleLlmText}
-            {isTranslateMode && loading && (
-              <span className="animate-pulse text-text-secondary"> ...</span>
-            )}
-          </div>
+          isSummaryMode ? (
+            <FormattedSummary text={visibleLlmText} />
+          ) : (
+            <div className="whitespace-pre-wrap text-base leading-relaxed">
+              {visibleLlmText}
+              {isTranslateMode && loading && (
+                <span className="animate-pulse text-text-secondary"> ...</span>
+              )}
+            </div>
+          )
         ) : (
           <div
             className="font-mono text-base leading-relaxed"
