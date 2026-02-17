@@ -11,22 +11,24 @@ from sqlalchemy import select
 from database.connection import get_db
 from database.orm import User, Subscription
 from dependencies.auth import get_current_user
-from dotenv import load_dotenv
-
-load_dotenv()
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/payments")
 
-STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
 STRIPE_MONTHLY_PRICE = os.getenv("STRIPE_MONTHLY_PRICE_ID")
 STRIPE_YEARLY_PRICE = os.getenv("STRIPE_YEARLY_PRICE_ID")
 STRIPE_LIFETIME_PRICE = os.getenv("STRIPE_LIFETIME_PRICE_ID")
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
-stripe.api_key = STRIPE_SECRET_KEY
+
+def _ensure_stripe_key():
+    """Set stripe API key lazily — reads env var at call time, not import time."""
+    if not stripe.api_key:
+        stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+    if not stripe.api_key:
+        raise HTTPException(status_code=500, detail="Stripe is not configured")
 
 
 # ── Endpoints ────────────────────────────────────────────────────────
@@ -42,6 +44,7 @@ async def create_checkout(
     user=Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    _ensure_stripe_key()
     if not user:
         raise HTTPException(status_code=401, detail="Sign in required")
 
@@ -78,6 +81,7 @@ async def create_checkout(
 
 @router.post("/webhook")
 async def handle_webhook(request: Request, db: AsyncSession = Depends(get_db)):
+    _ensure_stripe_key()
     raw_body = await request.body()
     sig_header = request.headers.get("Stripe-Signature", "")
 
@@ -197,6 +201,7 @@ async def get_customer_portal(
     user=Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    _ensure_stripe_key()
     if not user:
         raise HTTPException(status_code=401, detail="Sign in required")
 
