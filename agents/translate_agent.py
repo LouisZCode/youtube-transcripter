@@ -16,7 +16,7 @@ client = AsyncCerebras(api_key=os.environ.get("CEREBRAS_API_KEY"))
 
 async def translate(text: str, language: str) -> str:
     response = await client.chat.completions.create(
-        model="llama-3.3-70b",
+        model="gpt-oss-120b",
         messages=[
             {"role": "system", "content": translate_prompt},
             {"role": "user", "content": f"Translate the following to {language}:\n\n{text}"},
