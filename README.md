@@ -2,19 +2,37 @@
 
 Get transcripts, summaries, and translations from any YouTube video.
 
-Use it and test it in real time at  www.tubetext.app
+**Try it live:** [www.tubetext.app](https://www.tubetext.app)
 
-<!-- Add a screenshot or GIF here -->
-<!-- ![TubeText Screenshot](docs/screenshot.png) -->
+## Why
+
+YouTube is one of the richest sources of knowledge on the internet — tutorials, lectures, interviews, deep dives on any topic. But most videos are long, full of filler, and hard to skim.
+
+TubeText extracts the content that matters. Paste a link, get the full transcript in seconds. Summarize it. Translate it. Download it. Feed it to an LLM to study, research, or build on top of someone else's expertise — without watching a 40-minute video.
+
+![TubeText](screenshot.png)
 
 ## Features
 
 - **Transcription** — Extract captions from any YouTube video
 - **Premium Transcription** — Audio-based transcription via Deepgram when captions aren't available
 - **AI Summary** — Get key takeaways powered by OpenAI GPT-4 mini
-- **AI Translation** — Translate transcripts to 20+ languages via Cerebras (streaming)
+- **AI Translation** — Real-time streaming translation to 20+ languages via Cerebras
 - **PDF Export** — Download formatted transcripts as PDF
 - **Auth & Billing** — Google OAuth + Stripe subscriptions (free tier included)
+
+## Infrastructure
+
+The app runs as three services on Railway:
+
+<!-- Add Railway diagram screenshot here -->
+<!-- ![Infrastructure](docs/railway.png) -->
+
+| Service | Domain | Role |
+|---------|--------|------|
+| **PostgreSQL** | — | Stores users, OAuth accounts, and subscription data (persistent volume) |
+| **TubeText Backend** | `api.tubetext.app` | FastAPI server — handles transcription, AI calls (OpenAI, Cerebras, Deepgram), auth, and payments |
+| **TubeText Frontend** | `tubetext.app` | Next.js app — the UI users interact with |
 
 ## Tech Stack
 
@@ -66,9 +84,9 @@ docker run -p 8000:8000 --env-file .env tubetext
 
 See [`.env.example`](.env.example) for all required backend variables and [`frontend/.env.local.example`](frontend/.env.local.example) for frontend config.
 
-## Architecture
+## Contact
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed documentation on endpoints, database schema, user tiers, auth flows, and design decisions.
+For questions, feedback, or business inquiries — **contact@tubetext.app**
 
 ## License
 
